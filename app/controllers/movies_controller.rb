@@ -10,7 +10,25 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
+  def index
+    @all_ratings = Movie.uniq.pluck(:rating)
+    #@all_ratings = Movie.select(:rating).distinct
+    @filtered_ratings = []
+    if params[:ratings]
+      params[:ratings].each {|key, value| @filtered_ratings << key}
+      @movies = Movie.where(["rating = ?", @filtered_ratings])
+    elsif request.original_url =~ /title/
+      @movies = Movie.order('title')
+    elsif request.original_url =~ /release/
+      @movies = Movie.order('release_date')
+    else
+      @movies = Movie.all
+      @filtered_ratings = Movie.uniq.pluck(:rating)
+    end
+  end
 
+
+=begin
   def index
     if request.original_url =~ /title/
       @movies = Movie.order('title')
@@ -20,7 +38,7 @@ class MoviesController < ApplicationController
       @movies = Movie.all
     end
   end
-
+=end
 
   def new
     # default: render 'new' template
