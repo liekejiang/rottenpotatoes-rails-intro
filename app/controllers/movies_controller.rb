@@ -16,7 +16,8 @@ class MoviesController < ApplicationController
     @filtered_ratings = []
     if params[:ratings]
       params[:ratings].each {|key, value| @filtered_ratings << key}
-      @movies = Movie.where(["rating = ?", @filtered_ratings])
+      @movies = Movie.where(["rating IN (?)", @filtered_ratings])
+      byebug
     elsif request.original_url =~ /title/
       @movies = Movie.order('title')
     elsif request.original_url =~ /release/
