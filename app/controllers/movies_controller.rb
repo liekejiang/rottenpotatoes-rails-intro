@@ -10,13 +10,14 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
+
   def index
     @all_ratings = Movie.uniq.pluck(:rating)
     #@all_ratings = Movie.select(:rating).distinct
-    @filtered_ratings = []
+    @chosen_ratings = []
     if params[:ratings]
-      params[:ratings].each {|key, value| @filtered_ratings << key}
-      @movies = Movie.where(["rating IN (?)", @filtered_ratings])
+      params[:ratings].each {|key, value| @chosen_ratings << key}
+      @movies = Movie.where(["rating IN (?)", @chosen_ratings])
       byebug
     elsif request.original_url =~ /title/
       @movies = Movie.order('title')
@@ -24,9 +25,10 @@ class MoviesController < ApplicationController
       @movies = Movie.order('release_date')
     else
       @movies = Movie.all
-      @filtered_ratings = Movie.uniq.pluck(:rating)
+      @chosen_ratings = Movie.uniq.pluck(:rating)
     end
   end
+
 
 
 =begin
