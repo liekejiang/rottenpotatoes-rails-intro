@@ -14,26 +14,25 @@ class MoviesController < ApplicationController
   def index
     @all_ratings = Movie.uniq.pluck(:rating)
     @chosen_ratings = []
-    
-    if params[:ratings]
-      params[:ratings].each {|key, value| @chosen_ratings << key}
-      session[:saved_ratings] = @chosen_ratings
-      @movies = Movie.where(["rating IN (?)", @chosen_ratings])
-    else
-      
-      if session[:saved_ratings] 
-        @chosen_ratings = session[:saved_ratings]   
-        @movies = Movie.where(["rating IN (?)", @chosen_ratings])
-      else
-        @movies = Movie.all
-      end
-      
-      if request.original_url =~ /title/
-        @movies = @movies.order('title')
-      elsif request.original_url =~ /release/
-        @movies = @movies.order('release_date')
-      end      
-    end
+
+		if params.key?(:sort)
+			session[:sort] = params[:sort]
+		elsif session.key?(:sort)
+			params[:sort] = session[:sort]
+			redirect_to movies_path(params) and return
+		end
+		
+#		@hilite = sort_by = session[:sort_by]
+
+		if params.key?(:ratings)
+			session[:ratings] = params[:ratings]
+		elsif session.key?(:ratings)
+			params[:ratings] = session[:ratings]
+			redirect_to movies_path(params) and return
+		end
+    session[:ratings].each {|key, value| @chosen_ratings << key}
+    @movies = Movie.where(["rating IN (?)", @chosen_ratings])
+    @movies = @movies.order(session[:sort])
     
   end
 
