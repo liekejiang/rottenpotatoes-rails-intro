@@ -21,8 +21,6 @@ class MoviesController < ApplicationController
 			params[:sort] = session[:sort]
 			redirect_to movies_path(params) and return
 		end
-		
-#		@hilite = sort_by = session[:sort_by]
 
 		if params.key?(:ratings)
 			session[:ratings] = params[:ratings]
@@ -30,7 +28,13 @@ class MoviesController < ApplicationController
 			params[:ratings] = session[:ratings]
 			redirect_to movies_path(params) and return
 		end
-    session[:ratings].each {|key, value| @chosen_ratings << key}
+		
+		if session.key?(:ratings)
+      session[:ratings].each {|key, value| @chosen_ratings << key}
+    else
+      @chosen_ratings = @all_ratings
+    end
+    
     @movies = Movie.where(["rating IN (?)", @chosen_ratings])
     @movies = @movies.order(session[:sort])
     
